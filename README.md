@@ -4,8 +4,9 @@
 
 ### This is a Work-in-Progress! If you *really* wanna use this, make sure to check this page for updates!
 
-This is a IP based chat. It's similar to HexChat, but it was made with a budget of 0€.<
+This is a IP based chat. It's similar to HexChat, but it was made with a budget of 0€.
 
 Functions:
 You can send text messages!
+
 ... And that's all, I think.
