@@ -6,7 +6,6 @@
 
 This is a IP based chat. It's similar to HexChat, but it was made with a budget of 0€.
 
-Functions:
-You can send text messages!
+### Functions:
 
-... And that's all, I think.
+You can send text messages! 
