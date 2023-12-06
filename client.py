@@ -100,8 +100,8 @@ def beginChat(placeholder):
 
 def message_check():
    while running:
-    msg_bytes, id_ip = sock.recvfrom(2048)
-    if str.find(msg_bytes.decode(),yellow + nome) == -1:
+    msgBytes, ipNotUsed = sock.recvfrom(2048)
+    if str.find(msgBytes.decode(),yellow + nome) == -1:
        messagesLogged.append(msg_bytes.decode() + "\n")
        messagesToDisplay = ""
        for i in messagesLogged:
