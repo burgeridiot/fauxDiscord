@@ -13,11 +13,11 @@ import tkinter as tk
 
 # Defining some essential variables, such as:
 
-#   Window colors,
+# Window colors,
 blurple = "#838fc9"
 darkBlurple = "#36427c"
 windowWhite = "#ffffff"
-#   and chat colors.
+# and chat colors.
 yellow = '\033[93m'
 terminalWhite = '\033[0m'
 
@@ -76,18 +76,18 @@ def beginChat(placeholder):
    # Start checking for messages
    messageCheckThread = threading.Thread(target=message_check)
    messageCheckThread.start()
-   # loop so that it adds messages to the label
+   # Create loop so that it adds messages to the label
    while running:
-      newmsg = ""
+      newMsg = ""
       for i in messagesLogged:
-         newmsg = newmsg + i + " "
-      messageLabel.configure(text=newmsg)
+         newMsg = newMsg + i
+      messageLabel.configure(text=newMsg)
 
 def message_check():
    while running:
-    msg_bytes, id_ip = sock.recvfrom(2048)
-    if str.find(msg_bytes.decode(),yellow + nome) == -1:
-       messagesLogged.append(msg_bytes.decode() + "\n")
+    msgBytes, ipNotUsed = sock.recvfrom(2048)
+    if str.find(msgBytes.decode(),yellow + nome) == -1:
+       messagesLogged.append(msgBytes.decode() + "\n")
 
        
 # Pack it all up
