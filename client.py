@@ -5,19 +5,19 @@
 # Allow it to send messages
 # Fix the theme, it's quite ugly.
 
-
 # Libraries
 import socket
 import threading
 import tkinter as tk
+import time
 
 # Defining some essential variables, such as:
 
-# Window colors,
+#   Window colors,
 blurple = "#838fc9"
 darkBlurple = "#36427c"
 windowWhite = "#ffffff"
-# and chat colors.
+#   and chat colors.
 yellow = '\033[93m'
 terminalWhite = '\033[0m'
 
@@ -29,7 +29,9 @@ sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 window = tk.Tk(className='"Faux" Discord')
 window.configure(bg="#838fc9")
 window.resizable(width=False, height=False)
-window.geometry("300x200") 
+window.geometry("300x200")
+#p1 = tk.PhotoImage(file = 'info.png')
+#window.iconphoto(False, p1)
 
 # Defining what buttons it has
 usernameLabel = tk.Label(window,text="   Username   ",bg=blurple,fg = windowWhite)
@@ -40,15 +42,14 @@ spaceForButton = tk.Label(window,text="",fg = windowWhite,bg=blurple)
 ipEntry = tk.Entry(window,width=20,fg = windowWhite,bg=darkBlurple)
 portEntry = tk.Entry(window,width=10,fg = windowWhite,bg=darkBlurple)
 confirm = tk.Button(window,text="Confirm",fg = windowWhite,bg=darkBlurple)
-
-
+ 
+messagesToDisplay = ""
 serverIP = ""
 serverPort = 0
-messagesLogged = []
+messagesLogged = ["hi this is a test message \n","helloooooooooooooo\n"]
 nome = ""
 running = True
 automatedJoinMessage = yellow + nome  + terminalWhite + " has joined the server."
-
 def beginChat(placeholder):
    # Get some essential variables 
    serverIP = ipEntry.get()
@@ -56,7 +57,6 @@ def beginChat(placeholder):
    serverPort = int(portEntry.get())
    print(serverPort)
    nome = usernameEntry.get()
-   sock.bind(("",serverPort))
    running = True
    sock.sendto(automatedJoinMessage.encode(),(serverIP, serverPort))
 
@@ -66,6 +66,18 @@ def beginChat(placeholder):
    window2.resizable(width=False, height=False)
    window2.geometry("800x600")
   
+   # Create a function to bind to the send button
+   def sendMessage(text):
+       sock.sendto(text.encode(),(serverIP,serverPort))
+       print(text)
+
+   # Create a function to call on threading
+   def updateLabel():
+       while running:
+        time.sleep(2.5)
+        messageLabel.configure(text=messagesToDisplay)
+        messageLabel.update()
+
    # Set up its components
    messageLabel = tk.Label(window2,width =580, height=30, bg = darkBlurple,fg = windowWhite,justify=tk.LEFT)
    messageEntry = tk.Entry(window2,width=580,bg=darkBlurple,fg = windowWhite)
@@ -73,21 +85,28 @@ def beginChat(placeholder):
    messageLabel.pack()
    messageEntry.pack()
    messageSend.pack()
+
+
    # Start checking for messages
    messageCheckThread = threading.Thread(target=message_check)
    messageCheckThread.start()
-   # Create loop so that it adds messages to the label
-   while running:
-      newMsg = ""
-      for i in messagesLogged:
-         newMsg = newMsg + i
-      messageLabel.configure(text=newMsg)
+   labelUpdateThread = threading.Thread(target=updateLabel)
+   labelUpdateThread.start()
+   messageSend.bind("<Button-1>",sendMessage(messageEntry.get()))
+   window2.mainloop()
+   
+   # loop so that it adds messages to the label
+
 
 def message_check():
    while running:
-    msgBytes, ipNotUsed = sock.recvfrom(2048)
-    if str.find(msgBytes.decode(),yellow + nome) == -1:
-       messagesLogged.append(msgBytes.decode() + "\n")
+    msg_bytes, id_ip = sock.recvfrom(2048)
+    if str.find(msg_bytes.decode(),yellow + nome) == -1:
+       messagesLogged.append(msg_bytes.decode() + "\n")
+       messagesToDisplay = ""
+       for i in messagesLogged:
+         messagesToDisplay = messagesToDisplay + i + " "
+       print(messagesToDisplay)
 
        
 # Pack it all up
