@@ -61,7 +61,7 @@ def beginChat(placeholder):
    sock.sendto(automatedJoinMessage.encode(),(serverIP, serverPort))
 
    # Prepare new window to recieve and send messages
-   window2 = tk.Tk(className = serverIP + ' | "Faux" Discord')
+   window2 = tk.Tk(className = serverIP + ' | "Faux" Discord') # This won't display fully, but just in case...
    window2.configure(bg ="#838fc9")
    window2.resizable(width=False, height=False)
    window2.geometry("800x600")
@@ -92,10 +92,10 @@ def beginChat(placeholder):
    messageCheckThread.start()
    labelUpdateThread = threading.Thread(target=updateLabel)
    labelUpdateThread.start()
-   messageSend.bind("<Button-1>",sendMessage(messageEntry.get()))
+   messageSend.bind("<Button-1>",sendMessage(messageEntry.get())) # Oddly enough, not working
    window2.mainloop()
    
-   # loop so that it adds messages to the label
+   # Here would be a loop to check messages... IF I had any idea of how
 
 
 def message_check():
