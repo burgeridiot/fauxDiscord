@@ -2,15 +2,12 @@
 # TODO:
 # Convert every variable to camel case,
 # Actually get it to log messages and display them (as I can't test this due to school PCs blocking INTERNET CONNECTIONS COMING FROM PYTHON APPS RAHHHH)
-# Allow it to send messages
-# Fix the theme, it's quite ugly.
 
 # Libraries
 import socket
 import threading
-import tkinter as tk
-import time
-
+import customtkinter as tk
+tk.set_default_color_theme("dark-blue")
 # Defining some essential variables, such as:
 
 #   Window colors,
@@ -26,23 +23,24 @@ terminalWhite = '\033[0m'
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
 # Creating a window through tkinter
-window = tk.Tk(className='"Faux" Discord')
-window.configure(bg="#838fc9")
+window = tk.CTk(className='"Faux" Discord')
+window.configure(text_color_color="#838fc9")
 window.resizable(width=False, height=False)
-window.geometry("300x200")
+window.geometry("300x250")
 #p1 = tk.PhotoImage(file = 'info.png')
 #window.iconphoto(False, p1)
 
 # Defining what buttons it has
-usernameLabel = tk.Label(window,text="   Username   ",bg=blurple,fg = windowWhite)
-usernameEntry = tk.Entry(window,width=20,bg=darkBlurple,fg = windowWhite)
-ipLabel = tk.Label(window,text="   IP Address   ",bg=blurple,fg = windowWhite)
-portLabel = tk.Label(window,text="   Port   ",bg=blurple,fg = windowWhite)
-spaceForButton = tk.Label(window,text="",fg = windowWhite,bg=blurple)
-ipEntry = tk.Entry(window,width=20,fg = windowWhite,bg=darkBlurple)
-portEntry = tk.Entry(window,width=10,fg = windowWhite,bg=darkBlurple)
-confirm = tk.Button(window,text="Confirm",fg = windowWhite,bg=darkBlurple)
+usernameLabel = tk.CTkLabel(window,text="   Username   ",text_color = windowWhite)
+usernameEntry = tk.CTkEntry(window,width=120,fg_color=darkBlurple,text_color = windowWhite)
+ipLabel = tk.CTkLabel(window,text="   IP Address   ",text_color = windowWhite)
+portLabel = tk.CTkLabel(window,text="   Port   ",text_color = windowWhite)
+spaceForButton = tk.CTkLabel(window,text="",text_color = windowWhite)
+ipEntry = tk.CTkEntry(window,width=120,text_color = windowWhite,fg_color=darkBlurple)
+portEntry = tk.CTkEntry(window,width=80,text_color = windowWhite,fg_color=darkBlurple)
+confirm = tk.CTkButton(window,text="Confirm",text_color = windowWhite,fg_color=darkBlurple)
  
+hasCheckedMessages = False # Create a debounce boolean to prevent the label from updating before the messages are actually in the string messagesToDisplay
 messagesToDisplay = ""
 serverIP = ""
 serverPort = 0
@@ -60,28 +58,32 @@ def beginChat(placeholder):
    running = True
    sock.sendto(automatedJoinMessage.encode(),(serverIP, serverPort))
 
-   # Prepare new window to recieve and send messages
-   window2 = tk.Tk(className = serverIP + ' | "Faux" Discord') # This won't display fully, but just in case...
-   window2.configure(bg ="#838fc9")
+   # Close previous window and prepare new window to recieve and send messages
+   window.destroy()
+   window2 = tk.CTk(className = serverIP + ' | "Faux" Discord') # This won't display fully, but just in case...
    window2.resizable(width=False, height=False)
-   window2.geometry("800x600")
+   window2.geometry("600x550")
   
    # Create a function to bind to the send button
-   def sendMessage(text):
-       sock.sendto(text.encode(),(serverIP,serverPort))
-       print(text)
+   def sendMessage(placeholder):
+       message = yellow + nome  + terminalWhite + ": " + messageEntry.get()
+       sock.sendto(message.encode(),(serverIP,serverPort))
+       print(messageEntry.get())
+
+   
 
    # Create a function to call on threading
    def updateLabel():
+       global hasCheckedMessages
        while running:
-        time.sleep(2.5)
-        messageLabel.configure(text=messagesToDisplay)
-        messageLabel.update()
+         messageLabel.configure(text=messagesToDisplay)
+         print(messagesToDisplay)
+         messageLabel.update()
 
    # Set up its components
-   messageLabel = tk.Label(window2,width =580, height=30, bg = darkBlurple,fg = windowWhite,justify=tk.LEFT)
-   messageEntry = tk.Entry(window2,width=580,bg=darkBlurple,fg = windowWhite)
-   messageSend = tk.Button(window2,text="Send",fg = windowWhite,bg=darkBlurple)
+   messageLabel = tk.CTkLabel(window2,width =580, height=400,fg_color=darkBlurple,text_color = windowWhite)
+   messageEntry = tk.CTkEntry(window2,width=580)
+   messageSend = tk.CTkButton(window2,text="Send")
    messageLabel.pack()
    messageEntry.pack()
    messageSend.pack()
@@ -92,21 +94,26 @@ def beginChat(placeholder):
    messageCheckThread.start()
    labelUpdateThread = threading.Thread(target=updateLabel)
    labelUpdateThread.start()
-   messageSend.bind("<Button-1>",sendMessage(messageEntry.get())) # Oddly enough, not working
+   messageSend.bind("<Button-1>", command=sendMessage) 
    window2.mainloop()
-   
-   # Here would be a loop to check messages... IF I had any idea of how
+
 
 
 def message_check():
    while running:
+    global messagesToDisplay,hasCheckedMessages
+    print(messagesToDisplay)
     msgBytes, ipNotUsed = sock.recvfrom(2048)
     if str.find(msgBytes.decode(),yellow + nome) == -1:
-       messagesLogged.append(msg_bytes.decode() + "\n")
-       messagesToDisplay = ""
+       
+       messagesLogged.append(msgBytes.decode() + "\n")
+       if messagesToDisplay != "":
+         messagesToDisplay = ""
+       hasCheckedMessages = True
        for i in messagesLogged:
-         messagesToDisplay = messagesToDisplay + i + " "
-       print(messagesToDisplay)
+        messagesToDisplay = messagesToDisplay + i
+    
+       
 
        
 # Pack it all up
